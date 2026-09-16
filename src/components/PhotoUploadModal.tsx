@@ -45,42 +45,12 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Resize image client-side to optimal dimensions (max 1000px, 90% quality)
-  const processAndResizeImage = (file: File): Promise<string> => {
+  // Read exact original file as Data URL without any canvas processing or compression
+  const readExactOriginalImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const maxDim = 1000;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            resolve(e.target?.result as string);
-            return;
-          }
-
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-          resolve(dataUrl);
-        };
-        img.onerror = () => reject(new Error('Failed to load image for processing'));
-        img.src = e.target?.result as string;
+        resolve(e.target?.result as string);
       };
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsDataURL(file);
@@ -95,8 +65,8 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
     setStatusMessage(null);
 
     try {
-      const resizedBase64 = await processAndResizeImage(file);
-      setPreviewUrl(resizedBase64);
+      const exactBase64 = await readExactOriginalImage(file);
+      setPreviewUrl(exactBase64);
     } catch {
       setStatusMessage({
         type: 'error',
@@ -115,8 +85,8 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
     setStatusMessage(null);
 
     try {
-      const resizedBase64 = await processAndResizeImage(file);
-      setPreviewUrl(resizedBase64);
+      const exactBase64 = await readExactOriginalImage(file);
+      setPreviewUrl(exactBase64);
     } catch {
       setStatusMessage({
         type: 'error',

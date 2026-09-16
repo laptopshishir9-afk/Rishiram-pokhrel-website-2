@@ -12,12 +12,21 @@ import { cvData } from './data/cvData';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import defaultProfilePhoto from './assets/images/profile.jpg';
 
+const PHOTO_VERSION = '1789569320';
+
 export default function App() {
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string>(() => {
     try {
-      const stored = localStorage.getItem('rishiram_custom_uploaded_photo');
-      if (stored) return stored;
+      const storedVersion = localStorage.getItem('rishiram_photo_version');
+      if (storedVersion === PHOTO_VERSION) {
+        const stored = localStorage.getItem('rishiram_custom_uploaded_photo');
+        if (stored) return stored;
+      } else {
+        // Clear older version from previous turns
+        localStorage.removeItem('rishiram_custom_uploaded_photo');
+        localStorage.setItem('rishiram_photo_version', PHOTO_VERSION);
+      }
     } catch {
       // ignore
     }
@@ -28,13 +37,14 @@ export default function App() {
   useEffect(() => {
     const syncPhotoWithServer = async () => {
       try {
-        const res = await fetch('./photo-meta.json?t=' + Date.now());
+        const res = await fetch(`./photo-meta.json?t=${Date.now()}`);
         if (res.ok) {
           const meta = await res.json();
           if (meta?.hasCustomPhoto && meta?.timestamp) {
             const serverPhotoUrl = `./profile.jpg?v=${meta.timestamp}`;
             setPhotoUrl(serverPhotoUrl);
             try {
+              localStorage.setItem('rishiram_photo_version', String(meta.timestamp));
               localStorage.setItem('rishiram_custom_uploaded_photo', serverPhotoUrl);
             } catch {
               // ignore
