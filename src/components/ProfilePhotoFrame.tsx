@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { User, ShieldCheck, Camera, RotateCcw, Check, Sparkles, Smartphone, Laptop } from 'lucide-react';
-import { PhotoUploadModal } from './PhotoUploadModal';
+import { User, ShieldCheck } from 'lucide-react';
 
 interface ProfilePhotoFrameProps {
   photoUrl?: string | null;
@@ -13,31 +12,9 @@ interface ProfilePhotoFrameProps {
 
 export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
   photoUrl,
-  onPhotoChange,
-  onResetPhoto,
-  isCustomPhoto = false,
   className = '',
 }) => {
   const [imgError, setImgError] = useState(false);
-  const [successToast, setSuccessToast] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handlePhotoSavedFromModal = (newPhoto: string) => {
-    if (onPhotoChange) {
-      onPhotoChange(newPhoto);
-      setImgError(false);
-      setSuccessToast(true);
-      setTimeout(() => setSuccessToast(false), 3500);
-    }
-  };
-
-  const handleReset = () => {
-    if (onResetPhoto) {
-      onResetPhoto();
-      setImgError(false);
-      setSuccessToast(false);
-    }
-  };
 
   return (
     <div className={`flex flex-col items-center select-none ${className}`}>
@@ -117,20 +94,6 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
                 </p>
               </div>
             )}
-
-            {/* Quick Upload Hover Overlay */}
-            {onPhotoChange && (
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="absolute inset-0 bg-[#143d2b]/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white cursor-pointer p-4 text-center"
-                title="Click to manage or upload photo from this device"
-              >
-                <Camera className="w-8 h-8 mb-1 text-white" />
-                <span className="text-xs font-semibold">Change Photo</span>
-                <span className="text-[10px] text-[#c6decb] mt-0.5">Sync to all devices</span>
-              </button>
-            )}
           </div>
 
           {/* Elegant name badge anchored at the bottom center of the oval */}
@@ -141,60 +104,13 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
         </div>
       </motion.div>
 
-      {/* Quick Action Controls Under Photo */}
-      <div className="mt-5 flex flex-col items-center gap-2">
-        <div className="flex items-center gap-2">
-          {onPhotoChange && (
-            <button
-              id="upload-custom-photo-btn"
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#ebf3ed] hover:bg-[#d9eadf] text-[#143d2b] border border-[#bcd6c4] transition-colors cursor-pointer shadow-2xs"
-            >
-              <Camera className="w-3.5 h-3.5 text-[#205c3b]" />
-              <span>{isCustomPhoto ? 'Replace Photo' : 'Upload Your Photo'}</span>
-            </button>
-          )}
-
-          {isCustomPhoto && onResetPhoto && (
-            <button
-              id="reset-photo-btn"
-              type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium text-[#63756b] hover:text-[#143d2b] hover:bg-[#ebf3ed] transition-colors cursor-pointer"
-              title="Reset to default portrait"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Reset</span>
-            </button>
-          )}
-        </div>
-
-        {/* Upload Success Feedback */}
-        {successToast && (
-          <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#143d2b] bg-[#e3f0e7] px-2.5 py-0.5 rounded-full border border-[#a3ceb1] animate-fade-in">
-            <Check className="w-3 h-3 text-[#205c3b]" />
-            <span>Photo saved to server for all devices!</span>
-          </div>
-        )}
-
-        {/* Multi-device sync indicator */}
-        <div className="flex items-center gap-1.5 text-[11px] font-medium tracking-wide text-[#52796f]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#205c3b] animate-pulse"></span>
-          <span>Multi-Device Sync Enabled • Doha, Qatar</span>
-        </div>
+      {/* Professional status badge under photo without any change controls */}
+      <div className="mt-5 flex items-center gap-1.5 text-[11px] font-medium tracking-wide text-[#52796f]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#205c3b]"></span>
+        <span>Verified Professional Profile • Doha, Qatar</span>
       </div>
-
-      {/* Photo Upload & Multi-Device Manager Modal */}
-      <PhotoUploadModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        currentPhotoUrl={photoUrl || './profile.jpg'}
-        onPhotoSaved={handlePhotoSavedFromModal}
-        onResetToDefault={handleReset}
-        isCustomPhoto={isCustomPhoto}
-      />
     </div>
   );
 };
+
 
